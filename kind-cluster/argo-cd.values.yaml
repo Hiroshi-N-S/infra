@@ -1,0 +1,43 @@
+configs:
+  params:
+    server:
+      insecure: true
+server:
+  service:
+    type: NodePort
+    nodePortHttp: 30080
+    nodePortHttps: 30443
+  ingress:
+    enabled: false
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+controller:
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+dex:
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+redis:
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+repoServer:
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+notifications:
+  envFrom:
+    - configMapRef:
+        name: proxy-env-mp
+extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: proxy-env-mp
+    data:
+      http_proxy: ""
+      https_proxy: ""
+      no_proxy: ""

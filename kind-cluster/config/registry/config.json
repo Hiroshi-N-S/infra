@@ -1,0 +1,9 @@
+{
+  "auths": {
+    "mysticstorage.local:8443": {
+      "username": "admin",
+      "password": "Harbor12345",
+      "auth": "YWRtaW46SGFyYm9yMTIzNDU="
+    }
+  }
+}
