@@ -1,0 +1,16 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: synology-iscsi-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: csi.san.synology.com
+parameters:
+  dsm: 'mysticstorage.local'
+  location: '/volume2'
+  type: thin
+  protocol: iscsi
+  csi.storage.k8s.io/fsType: btrfs
+reclaimPolicy: Retain
+allowVolumeExpansion: true

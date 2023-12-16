@@ -1,0 +1,7 @@
+---
+clients:
+  - host: mysticstorage.local
+    port: 5000
+    https: false
+    username: kind
+    password: K8sInDocker_12345
