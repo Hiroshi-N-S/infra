@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:15.5-bullseye
+    restart: always
+    volumes:
+      - /volume1/docker/keycloak/data/database:/var/lib/postgresql/data
+    environment:
+      TZ: Asia/Tokyo
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    depends_on:
+      - postgres
+    command: start-dev
+    restart: always
+    ports:
+      - 8080:8080
+      - 9443:8443
+    volumes:
+      - /volume1/docker/keycloak/data/certs:/etc/x509/https
+    environment:
+      TZ: Asia/Tokyo
+      # console
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Keycloak12345
+      KC_HTTP_RELATIVE_PATH: /
+      KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/ca.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/ca.key
+      # KC_HEALTH_ENABLED: 'true'
+      # KC_HTTP_ENABLED: 'true'
+      # KC_HOSTNAME_STRICT: 'false'
+      # postgres
+      KC_DB: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
