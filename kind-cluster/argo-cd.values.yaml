@@ -1,14 +1,64 @@
+extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: proxy-env-mp
+    data:
+      http_proxy: ""
+      https_proxy: ""
+      no_proxy: ""
 configs:
   params:
     server:
       insecure: true
+  cm:
+    admin.enabled: true
+    url: https://mint.local:30443/
+    oidc.config: |
+      name: Keycloak
+      issuer: http://mysticstorage.local:8080/realms/cicd
+      clientID: argo-cd
+      clientSecret: CIhq5DJJw1ovAKL26x4NLUsSFJLo604N
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+      requestedScopes:
+        - openid
+        - profile
+        - groups
+  rbac:
+    policy.default: role:readonly
+    policy.csv: |
+      g, ArgoCDAdmins, role:admin
 server:
   service:
     type: NodePort
     nodePortHttp: 30080
     nodePortHttps: 30443
+    # type: ClusterIP
+    servicePortHttp: 80
+    servicePortHttps: 443
+    servicePortHttpName: http
+    servicePortHttpsName: https
   ingress:
-    enabled: false
+    enabled: true
+    tls: false
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      ingress.kubernetes.io/protocol: http # Traefik
+      nginx.ingress.kubernetes.io/backend-protocol: http # ingress-nginx
+    ingressClassName: nginx
+    extraPaths:
+      - path: /cd(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: argo-cd-argocd-server
+            port:
+              name: http
   envFrom:
     - configMapRef:
         name: proxy-env-mp
@@ -17,6 +67,7 @@ controller:
     - configMapRef:
         name: proxy-env-mp
 dex:
+  enabled: false
   envFrom:
     - configMapRef:
         name: proxy-env-mp
@@ -32,12 +83,3 @@ notifications:
   envFrom:
     - configMapRef:
         name: proxy-env-mp
-extraObjects:
-  - apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: proxy-env-mp
-    data:
-      http_proxy: ""
-      https_proxy: ""
-      no_proxy: ""
